@@ -5,5 +5,5 @@
 # CREATED BY MACS
 .DS_Store
 
-# LESS / CSS FILES [ IGNORE ALL .CSS FOR NOW ]
-css/*.css
+# LESS / CSS FILES
+src/css/*.css
