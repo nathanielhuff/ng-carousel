@@ -235,7 +235,7 @@
         $interval(function() {
 
           // set active index (this hides old slide and displays new slide)
-          $scope.CarouselController.activeIndex = $scope.getNextIndex();
+          $scope.CarouselController.activeIndex = $scope.CarouselController.getNextIndex();
 
           var activeIdx = $scope.CarouselController.activeIndex;
 
