@@ -89,18 +89,21 @@
       'slideOutRight',
       'slideOutUp'
     ],
+    animationDefault: 'fadeIn', // Optional
     animationEndEvents: 'webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend',
+    // Provide carousel object...
     carousel: {
-      baseDir: 'img/',
-      slidePrefix: 'slide-',
-      count: 16,
-      fileType: '.png',
-      slideInterval: 5000 // milliseconds
+      baseDir: 'img/',          // Required
+      slidePrefix: 'slide-',    // Required
+      count: 10,                // Required
+      fileType: '.png',         // Required
+      slideInterval: 5000       // Optional, milliseconds
     },
+    // ... or define the slides yourself
     slides: [
       {
         src: 'img/slide-1.png', // Must contain path with filename and extension
-        animation: 'fadeIn'
+        animation: 'fadeIn'     // Optional, if not provided defaults to animationDefault
       }
     ]
   };
@@ -109,10 +112,9 @@
     .constant('CONFIG', CONFIG);
 
   // Carousel Service
-  function CarouselService (CONFIG) {
+  function CarouselService (CONFIG, UtilityService) {
 
-    // TO DO:
-    // Add checks for slides versus carousel config
+    // check for slides versus carousel config
 
     var slides = (CONFIG.slides && CONFIG.slides.length) ? angular.copy(CONFIG.slides) : [];
 
@@ -126,15 +128,19 @@
       }
 
     }
-
     if(!slides.length) buildSlides();
 
     var getSlides = function () {
       return slides;
     }
 
+    var setSlides = function (newSlides) {
+      slides = angular.copy(newSlides);
+    }
+
     return {
-      getSlides: getSlides
+      getSlides: getSlides,
+      setSlides: setSlides
     };
   }
 
@@ -166,7 +172,8 @@
 
         var _this = this;
 
-        _this.slides = CarouselService.getSlides();
+        _this.slides;
+        _this.slideOrder;
         _this.activeIndex = 0;
 
         function randomIndex(length) {
@@ -179,40 +186,63 @@
         _this.getNextIndex = function () {
           var nextIdx;
 
-          do {
-            nextIdx = randomIndex(_this.slides.length);
+          if(_this.slideOrder === 'sequential') {
+            nextIdx = ( (_this.activeIndex + 1) === _this.slides.length ) ? 0 : nextIdx + 1;
+          } else {
+            do {
+              nextIdx = randomIndex(_this.slides.length);
+            }
+            while(nextIdx === _this.activeIndex);
           }
-          while(nextIdx === _this.activeIndex);
 
           return nextIdx;
         };
 
-        _this.getAnimation = function () {
-          var idx = randomIndex(CONFIG.animations.length);
-          return CONFIG.animations[idx];
+        _this.getAnimation = function (slideIdx) {
+
+          var anim;
+
+          if(_this.slides[slideIdx].animation) {
+            anim = _this.slides[slideIdx].animation;
+          } else if(CONFIG.animationDefault) {
+            anim = CONFIG.animationDefault;
+          } else {
+            anim = CONFIG.animations[randomIndex(CONFIG.animations.length)];
+          }
+
+          return anim;
         };
 
       },
       link: function ($scope, $element, $attrs) {
 
-        $scope.slides =
+        // check for localized slide data set (ex : from another $scope)
+        if($attrs['slides']) {
+          CarouselService.setSlides( $scope.$eval($attrs['slides']) );
+        }
+        $scope.CarouselController.slides = CarouselService.getSlides();
 
-        // TO DO:
-        // Add support for specific animations for each slide
-        // Add attributes to check for random vs sequential
+        // check for random vs sequential
+        $scope.CarouselController.slideOrder = ($attrs['slideOrder']) ? $attrs['slideOrder'].toLowerCase() : 'random';
 
+        // check for slideInterval override
         var slideInterval = parseInt($attrs['slideInterval'],10) || CONFIG.carousel.slideInterval || 3000;
 
-        // every x amt of time
+        // check for directive-specific animation
+        var animation = $attrs['animation'] || '';
+
+        // every x amount of time
         $interval(function() {
 
           // set active index (this hides old slide and displays new slide)
-          $scope.activeIndex = $scope.getNextIndex();
+          $scope.CarouselController.activeIndex = $scope.getNextIndex();
+
+          var activeIdx = $scope.CarouselController.activeIndex;
 
           // animate the (new) active index via broadcast
           $scope.$broadcast('carouselAnimate', {
-            activeIndex: $scope.activeIndex,
-            animation: $scope.getAnimation()
+            activeIndex: activeIdx,
+            animation: animation || $scope.CarouselController.getAnimation(activeIdx)
           });
 
         }, slideInterval);
