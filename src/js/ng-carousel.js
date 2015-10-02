@@ -112,7 +112,7 @@
     .constant('CONFIG', CONFIG);
 
   // Carousel Service
-  function CarouselService (CONFIG, UtilityService) {
+  function CarouselService (CONFIG) {
 
     // check for slides versus carousel config
 
