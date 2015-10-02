@@ -89,26 +89,27 @@
       'slideOutRight',
       'slideOutUp'
     ],
-    animationDefault: 'fadeIn', // Optional
+    //animationDefault: 'fadeIn', // Optional
     animationEndEvents: 'webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend',
     // Provide carousel object...
     carousel: {
       baseDir: 'img/',          // Required
       slidePrefix: 'slide-',    // Required
-      count: 10,                // Required
-      fileType: '.png',         // Required
+      count: 8,                // Required
+      fileType: '.jpg',         // Required
       slideInterval: 5000       // Optional, milliseconds
-    },
+    }/*,
     // ... or define the slides yourself
     slides: [
       {
         src: 'img/slide-1.png', // Must contain path with filename and extension
         animation: 'fadeIn'     // Optional, if not provided defaults to animationDefault
       }
-    ]
+    ]*/
   };
 
   angular
+    .module(appName)
     .constant('CONFIG', CONFIG);
 
   // Carousel Service
@@ -119,14 +120,16 @@
     var slides = (CONFIG.slides && CONFIG.slides.length) ? angular.copy(CONFIG.slides) : [];
 
     function buildSlides () {
-      var c = CONFIG.carousel;
-
-      for(var i=0,ii=c.count; i<ii; i++) {
-        slides.push({
-          src: c.baseDir + c.slidePrefix + (i+1) + c.fileType
-        });
+      if(CONFIG.carousel) {
+        var c = CONFIG.carousel;
+        if(c.count && c.baseDir && c.slidePrefix && c.fileType) {
+          for(var i=0,ii=c.count; i<ii; i++) {
+            slides.push({
+              src: c.baseDir + c.slidePrefix + (i+1) + c.fileType
+            });
+          }
+        }
       }
-
     }
     if(!slides.length) buildSlides();
 
@@ -157,12 +160,12 @@
       template: [
           '<div class="ng-carousel">',
             '<div class="slide-container">',
-                '<img',
-                  'class="slide"',
-                  'data-ng-show="$index === CarouselController.activeIndex"',
-                  'data-ng-repeat="slide in CarouselController.slides"',
-                  'data-ng-src="{{ slide.src }}"',
-                  'data-ng-carousel-animate="{{ $index }}"',
+                '<img ',
+                  'class="slide" ',
+                  'data-ng-show="$index === CarouselController.activeIndex" ',
+                  'data-ng-repeat="slide in CarouselController.slides" ',
+                  'data-ng-src="{{ slide.src }}" ',
+                  'data-ng-carousel-animate="{{ $index }}" ',
                 '/>',
             '</div>',
           '</div>'
@@ -184,10 +187,10 @@
         }
 
         _this.getNextIndex = function () {
-          var nextIdx;
+          var nextIdx = 0;
 
           if(_this.slideOrder === 'sequential') {
-            nextIdx = ( (_this.activeIndex + 1) === _this.slides.length ) ? 0 : nextIdx + 1;
+            nextIdx = ( (_this.activeIndex + 1) === _this.slides.length ) ? 0 : _this.activeIndex + 1;
           } else {
             do {
               nextIdx = randomIndex(_this.slides.length);

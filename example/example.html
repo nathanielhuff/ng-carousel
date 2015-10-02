@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <title>Example</title>
+    <!-- External CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/3.0.3/normalize.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.4.0/animate.min.css"/>
+    <!-- Head JS -->
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.6/angular.min.js"></script>
+    <!--[if lt IE 9 ]>
+		<script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+	<![endif]-->
+</head>
+<body data-ng-app="Carousel">
+    <style>
+        .ng-carousel .slide-container {
+          position: relative;
+        }
+        .ng-carousel .slide {
+          position: absolute;
+          height: auto;
+          width: 100%;
+          top: 0;
+          left: 0;
+        }
+        .example {
+            height: 320px;
+            width: 320px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1  {
+            text-align: center;
+        }
+    </style>
+    <h1>Example 1</h1>
+    <div class="example one">
+        <data-ng-carousel></data-ng-carousel>
+    </div>
+    <h1>Example 2</h1>
+    <div class="example two">
+        <data-ng-carousel data-slide-interval="2000" data-slide-order="sequential"></data-ng-carousel>
+    </div>
+    <h1>Example 3</h1>
+    <div class="example three">
+        <data-ng-carousel data-animation="bounce"></data-ng-carousel>
+    </div>
+	<script type="text/javascript" src="../src/js/ng-carousel.js"></script>
+</body>
+</html>
